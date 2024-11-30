@@ -26,9 +26,9 @@ class AuthController extends Controller
             'location' => 'nullable | string | min:3 | max:100',
         ]);
 
-        
+
         if(isset($data['image']))
-            $data['image'] = $this->storeProfiles($data['image'],'images/profiles');
+            $data['image'] = $this->storeImage($data['image'],'images/profiles');
 
         // Create a new user
         $user = User::create([
