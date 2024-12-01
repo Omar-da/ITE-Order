@@ -59,7 +59,7 @@ class MarketController extends Controller
         return response()->json([
             'market' => $market ,
             'image_of_market' => $this->get_image($market) ,
-            // 'products' => $market->products
+            'products' => $market->products
         ]);
     }
 
@@ -78,7 +78,8 @@ class MarketController extends Controller
         return response()->json([
             'message' => 'Data updated successfully',
             'market' => $market,
-            'image_of_market' => $this->get_image($market)
+            'image_of_market' => $this->get_image($market),
+            'products' => $market->products
         ]);
     }
 

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MarketController;
+use App\Http\Controllers\ProductController;
 use App\Http\Middleware\RefreshMiddleware;
 
 Route::get('/welcome',function(){
@@ -25,15 +26,25 @@ Route::prefix('auth')->group(function () {
 
 // Market's Routes
 
-Route::middleware('auth:api')->group(function(){
+Route::prefix('markets')->middleware('auth:api')->group(function(){
     
-    Route::get('/markets',[MarketController::class,'index'])->name('markets');
-    Route::get('/markets/{market}',[MarketController::class,'show'])->name('markets.show');
-    Route::post('/markets',[MarketController::class,'store'])->name('markets.store');
-    Route::put('/markets/{market}',[MarketController::class,'update'])->name('markets.update');
-    Route::delete('/markets/{market}',[MarketController::class,'destroy'])->name('markets.delete');
+    Route::get('',[MarketController::class,'index'])->name('markets');
+    Route::get('/{market}',[MarketController::class,'show'])->name('markets.show');
+    Route::post('',[MarketController::class,'store'])->name('markets.store');
+    Route::put('/{market}',[MarketController::class,'update'])->name('markets.update');
+    Route::delete('/{market}',[MarketController::class,'destroy'])->name('markets.delete');
 
 });
 
 
+// Product's Routes
+
+Route::prefix('products')->middleware('auth:api')->group(function(){
+    
+    Route::get('/{product}',[ProductController::class,'show'])->name('products.show');
+    Route::post('/{market}',[ProductController::class,'store'])->name('products.store');
+    Route::put('/{product}',[ProductController::class,'update'])->name('products.update');
+    Route::delete('/{product}',[ProductController::class,'destroy'])->name('products.delete');
+
+});
 
