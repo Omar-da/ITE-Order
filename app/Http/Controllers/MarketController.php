@@ -97,7 +97,7 @@ class MarketController extends Controller
     protected function get_image(Market $market)
     {
         $imagePath = public_path('images/markets/' . $market->image);
-        if (file_exists($imagePath)) {
+        if (is_file($imagePath)) {
             $imageData = base64_encode(file_get_contents($imagePath));
             return $imageData;
         }

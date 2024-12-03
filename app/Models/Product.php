@@ -11,7 +11,8 @@ class Product extends Model
         'image',  
         'description',
         'price',
-        'market_id'
+        'market_id',
+        'available_quantity'
     ];
 
     

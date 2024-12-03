@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('description');
             $table->integer('price');
+            $table->integer('available_quantity');
             $table->timestamps();
             $table->foreignIdFor(Market::class);
         });

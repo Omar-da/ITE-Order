@@ -2,9 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\ProductController;
-use App\Http\Middleware\RefreshMiddleware;
 
 Route::get('/welcome',function(){
     return response()->json('Welcome to ITE Order');
@@ -30,9 +30,9 @@ Route::prefix('markets')->middleware('auth:api')->group(function(){
     
     Route::get('',[MarketController::class,'index'])->name('markets');
     Route::get('/{market}',[MarketController::class,'show'])->name('markets.show');
-    Route::post('',[MarketController::class,'store'])->name('markets.store');
-    Route::put('/{market}',[MarketController::class,'update'])->name('markets.update');
-    Route::delete('/{market}',[MarketController::class,'destroy'])->name('markets.delete');
+    Route::post('',[MarketController::class,'store'])->name('markets.store')->middleware('role:admin');
+    Route::put('/{market}',[MarketController::class,'update'])->name('markets.update')->middleware('role:admin');
+    Route::delete('/{market}',[MarketController::class,'destroy'])->name('markets.delete')->middleware('role:admin');
 
 });
 
@@ -42,9 +42,18 @@ Route::prefix('markets')->middleware('auth:api')->group(function(){
 Route::prefix('products')->middleware('auth:api')->group(function(){
     
     Route::get('/{product}',[ProductController::class,'show'])->name('products.show');
-    Route::post('/{market}',[ProductController::class,'store'])->name('products.store');
-    Route::put('/{product}',[ProductController::class,'update'])->name('products.update');
-    Route::delete('/{product}',[ProductController::class,'destroy'])->name('products.delete');
+    Route::post('/{market}',[ProductController::class,'store'])->name('products.store')->middleware('role:admin');
+    Route::put('/{product}',[ProductController::class,'update'])->name('products.update')->middleware('role:admin');
+    Route::delete('/{product}',[ProductController::class,'destroy'])->name('products.delete')->middleware('role:admin');
 
 });
 
+// Cart's Routes
+
+Route::middleware('role:user')->group(function(){
+    
+    Route::get('/cart/add_to_cart/{product}',[CartController::class,'add'])->name('cart.add');
+    Route::get('/cart/products',[CartController::class,'index'])->name('cart.index');
+    Route::post('/cart/order',[CartController::class,'order'])->name('cart.order');
+
+});

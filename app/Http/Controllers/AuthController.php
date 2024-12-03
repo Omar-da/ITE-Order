@@ -36,6 +36,7 @@ class AuthController extends Controller
             'phone_number' => $data['phone_number'],
             'image' => $data['image']?? null,
             'location' => $data['location']?? null,
+            'role' => 'user',
         ]);
         
         $expForAccessToken = $this->setExpirationTime('access');

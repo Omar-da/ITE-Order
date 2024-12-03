@@ -76,7 +76,7 @@ class ProductController extends Controller
     protected function get_image(Product $product)
     {
         $imagePath = public_path('images/products/' . $product->image);
-        if (file_exists($imagePath)) {
+        if (is_file($imagePath)) {
             $imageData = base64_encode(file_get_contents($imagePath));
             return $imageData;
         }
@@ -91,6 +91,7 @@ class ProductController extends Controller
             'image' => 'nullable | image | max:5120',
             'description' => 'required | min:3 | max:200 | string',
             'price' =>  'required | numeric',
+            'available_quantity' => 'required | numeric | min: 1'
         ]);
     }
 }
