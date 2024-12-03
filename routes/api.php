@@ -53,6 +53,7 @@ Route::prefix('products')->middleware('auth:api')->group(function(){
 Route::middleware('role:user')->group(function(){
     
     Route::get('/cart/add_to_cart/{product}',[CartController::class,'add'])->name('cart.add');
+    Route::get('/cart/remove_from_cart/{product}',[CartController::class,'remove'])->name('cart.remove');
     Route::get('/cart/products',[CartController::class,'index'])->name('cart.index');
     Route::post('/cart/order',[CartController::class,'order'])->name('cart.order');
 

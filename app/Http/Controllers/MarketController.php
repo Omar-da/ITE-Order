@@ -16,19 +16,16 @@ class MarketController extends Controller
     public function index()
     {
         $markets = Market::all();
-        $imageArray = [];    
+        $marketsWithImages = [];    
 
-        $markets = $markets->map(function ($market) use (&$imageArray) {
-            $imageArray[] = [
-                'market_id' => $market->id,
+        foreach($markets as $market)
+            $marketsWithImages[] = [
+                'market' => $market,
                 'image' => $this->get_image($market),
             ];
-            return $market;
-        });
 
         return response()->json([
             'markets' => $markets,
-            'images_array' => $imageArray
         ]);
     }
 

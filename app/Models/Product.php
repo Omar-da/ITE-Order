@@ -19,4 +19,9 @@ class Product extends Model
     public function market(){
         return $this->belongsTo(Market::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withPivot(['quantity', 'total_price']);
+    }
 }
