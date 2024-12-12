@@ -4,41 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Market;
 use App\Traits\storeImagesTrait;
-use Illuminate\Http\Request;
 
 class MarketController extends Controller
 {
     use storeImagesTrait;
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
+        // Get markets
         $markets = Market::all();
-        $marketsWithImages = [];    
 
+        // Combine markets with their images
         foreach($markets as $market)
             $marketsWithImages[] = [
                 'market' => $market,
                 'image' => $this->get_image($market),
             ];
 
+        // Return markets with their images
         return response()->json([
-            'markets' => $markets,
+            'markets' => $marketsWithImages,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
+    
     public function store()
     {
+        // Validate incoming request data
         $data = $this->validate_market();
 
+        // Store image in 'Public' folder
         if(isset($data['image']))
             $data['image'] = $this->storeImage($data['image'],'images/markets');
 
+        // Create market
         $market = Market::create($data);
 
         return response()->json([
@@ -48,26 +48,30 @@ class MarketController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Market $market)
+    
+    
+    public function show($market)        // Get market with its image and products
     {
+        $market = Market::with('products')->find($market);
+
         return response()->json([
             'market' => $market ,
+            'image' => $this->get_image($market)
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
+    
     public function update(Market $market)
     {
+        // Validate incoming request data
         $data = $this->validate_market();
 
+        // Update the image of the market in 'Public' file
         if(isset($data['image']))
             $data['image'] = $this->updateImage($data['image'],'images/markets',$market->image);
 
+        // Update the data
         $market->update($data);
 
         return response()->json([
@@ -78,20 +82,25 @@ class MarketController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Market $market)
+    
+    
+    public function destroy(Market $market)     // Delete market
     {
         $market->delete();
+
         return response()->json([
             'message' => 'Market deleted successfully'
         ]);
     }
 
+
+
     protected function get_image(Market $market)
     {
+        // Get path of image
         $imagePath = public_path('images/markets/' . $market->image);
+
+        // Get data of image
         if (is_file($imagePath)) {
             $imageData = base64_encode(file_get_contents($imagePath));
             return $imageData;
@@ -100,7 +109,9 @@ class MarketController extends Controller
             return null;
     }
 
-    protected function validate_market()
+
+
+    protected function validate_market()        // Validate incoming request data
     {
         return request()->validate([
             'name' => 'required | min:3 | max:20 | string | unique:App\Models\Market,name ',

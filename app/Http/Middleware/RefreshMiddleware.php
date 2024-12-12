@@ -12,22 +12,17 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class RefreshMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {   
-        // Extract and validate the refresh token
-        if(request()->url() == route('logout')) {
-            $refreshToken = str_replace('Bearer ', '', request()->input('refresh_token'));
-            request()->attributes->set('refresh_token', $refreshToken);
+        // Determinate the place of refresh token according to the incoming request
+        if($request->url() == route('logout')) {
+            $refreshToken = str_replace('Bearer ', '', $request->input('refresh_token'));
+            $request->attributes->set('refresh_token', $refreshToken);
         }
+        if($request->url() == route('refresh'))
+            $refreshToken = str_replace('Bearer ', '', $request->header('Authorization'));
         
-        if(request()->url() == route('refresh'))
-            $refreshToken = str_replace('Bearer ', '', request()->header('Authorization'));
-        
+        // Check if refresh token is existed
         if (!$refreshToken)
             return response()->json(['error' => 'Refresh token is required'], 400);
     
@@ -45,7 +40,7 @@ class RefreshMiddleware
             return response()->json(['error' => 'Invalid token type'], 401);
         }
         
-        // Get the payload and extract the jti claim
+        // Check if it's a blacklisted refresh token
         $jti = $payload->get('jti');
         if(Cache::has("blacklisted_refresh_token_{$jti}"))
             return response()->json(['error' => 'Unauthenticated'], 401);

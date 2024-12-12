@@ -9,15 +9,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GuestMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        // Redirect authenticated users to the index route
         if (request()->header('Authorization') && JWTAuth::parseToken()->check()) 
-            // Redirect authenticated users to the index route
             return to_route('markets');
         return $next($request);
     }

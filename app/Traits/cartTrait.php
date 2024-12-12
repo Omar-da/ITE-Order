@@ -20,6 +20,8 @@ trait cartTrait {
                     'quantity' => $product->pivot->quantity,
                     'total_price' => $product->pivot->total_price
                     ];
+
+                    // Calculate the total price
                     $bill+= $product->pivot->total_price;
                 }   
             return [

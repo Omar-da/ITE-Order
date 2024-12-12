@@ -26,7 +26,7 @@ class AuthController extends Controller
             'location' => 'nullable | string | min:3 | max:100',
         ]);
 
-
+        // Store image in 'Public' folder
         if(isset($data['image']))
             $data['image'] = $this->storeImage($data['image'],'images/profiles');
 
@@ -39,6 +39,7 @@ class AuthController extends Controller
             'role' => 'user',
         ]);
         
+        // Set expiration time for tokens
         $expForAccessToken = $this->setExpirationTime('access');
         $expForRefreshToken = $this->setExpirationTime('refresh');
 
@@ -56,21 +57,16 @@ class AuthController extends Controller
     }
 
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
 
-    public function login()
+    public function login(Request $request)
     {
 
-        $user = User::where('phone_number', request()->phone_number)->first();
-
-        if (!$user) {
+        // Check of number if it exists
+        $user = User::where('phone_number', $request->phone_number)->first();
+        if (!$user)
             return response()->json(['error' => 'User not found'], 404);
-        }
 
+        // Set expiration time for tokens
         $expForAccessToken = $this->setExpirationTime('access');
         $expForRefreshToken = $this->setExpirationTime('refresh');
 
@@ -87,28 +83,24 @@ class AuthController extends Controller
         ],200);
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+    
+    
     public function me()
     {
         return response()->json(auth()->user());
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
+    
+    
+    public function logout(Request $request)
     {
         auth()->guard('api')->logout();
 
         try {
-            $refreshToken = request()->get('refresh_token');
-            $accessToken = str_replace('Bearer ', '', request()->header('Authorization'));
+
+            // Get tokens
+            $refreshToken = $request->get('refresh_token');
+            $accessToken = str_replace('Bearer ', '', $request->header('Authorization'));
 
             // Blacklist the access token (invalidate it)
             JWTAuth::setToken($accessToken)->invalidate($accessToken);
@@ -127,26 +119,31 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh(Request $request)
+    
+    
+    public function refresh()
     {       
             // Generate a new access token
             $newAccessToken = JWTAuth::claims(['type' => 'access'])->fromUser(auth()->user());
+
+            // Set expiration time for token
             $exp = $this->setExpirationTime('access');
+
             return response()->json([
                 'new_access_token' => $this->respondWithToken($newAccessToken, $exp)
             ]);
     }
 
 
-    public function to_admin(User $user)
+    
+    public function to_admin(User $user)        // Promote user to admin
     {
+        // Prevent changing the role of the owner
+        if($user->id == 1)
+            return response()->json('Owner can not be changed', 403);
+
         if($user->role == 'admin')
-        return response()->json('This is an admin not a user');
+            return response()->json('This is an admin not a user');
     
         $user->update([
             'role' => 'admin'
@@ -155,14 +152,27 @@ class AuthController extends Controller
         return response()->json('The user become an admin');
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token, $exp)
+
+
+    public function to_user(User $user)        // demote admin to user
+    {
+        // Prevent changing the role of the owner
+        if($user->id == 1)
+            return response()->json('Owner can not be changed', 403);
+
+        if($user->role == 'user')
+            return response()->json('This is a user not an admin');
+    
+        $user->update([
+            'role' => 'user'
+        ]);
+
+        return response()->json('The admin become a user');
+    }
+
+
+    
+    protected function respondWithToken($token, $exp)       //format the returned token
     {
         return [
             'token' => $token,
@@ -173,7 +183,7 @@ class AuthController extends Controller
 
 
 
-    protected function setExpirationTime(String $type = null) : Carbon
+    protected function setExpirationTime(String $type = null) : Carbon      // Set unified expiration for tokens
     {
         $expForRefreshToken = Carbon::now()->addMinutes(20160);
         $expForAccessToken = Carbon::now()->addMinutes(60);

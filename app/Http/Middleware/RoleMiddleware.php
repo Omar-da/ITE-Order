@@ -3,23 +3,16 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle($request, Closure $next, string $role)
+    public function handle($request, Closure $next, string $role)       // Check if user is admin or not
     {
-        if (!auth()->user() || auth()->user()->role != $role) {
-            abort(403, 'Access Denied');
-        }
 
-        return $next($request);
+        if (auth()->user()->role == $role || (auth()->user()->role == 'owner' && $role == 'admin'))
+            return $next($request);
+        
+        abort(403, 'Access Denied');
     }
 
 }

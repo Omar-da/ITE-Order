@@ -5,24 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Market;
 use App\Models\Product;
 use App\Traits\storeImagesTrait;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     use storeImagesTrait;
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Market $market)
     {
+        // Validate incoming request data
         $data = $this->validate_product();
 
         $data['market_id'] = $market->id;
 
+        // Store image in 'Public' folder
         if(isset($data['image']))
             $data['image'] = $this->storeImage($data['image'],'images/products');
 
+        // Create product
         $product = Product::create($data);
 
         return response()->json([
@@ -32,10 +31,9 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
+    
+    
+    public function show(Product $product)        // Get the product with its image
     {
         return response()->json([
             'product' => $product ,
@@ -43,16 +41,18 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
+    
     public function update(Product $product)
     {
+        // Validate incoming request data
         $data = $this->validate_product();
 
+        // Update the image of the product in 'Public' file
         if(isset($data['image']))
             $data['image'] = $this->updateImage($data['image'],'images/products',$product->image);
 
+        // Update the data
         $product->update($data);
 
         return response()->json([
@@ -62,9 +62,8 @@ class ProductController extends Controller
         ]);    
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
+    
     public function destroy(Product $product)
     {
         $product->delete();
@@ -73,9 +72,14 @@ class ProductController extends Controller
         ]);
     }
 
+
+
     protected function get_image(Product $product)
     {
+        // Get path of image
         $imagePath = public_path('images/products/' . $product->image);
+
+        // Get data of image
         if (is_file($imagePath)) {
             $imageData = base64_encode(file_get_contents($imagePath));
             return $imageData;
@@ -84,7 +88,9 @@ class ProductController extends Controller
             return null;
     }
 
-    protected function validate_product()
+
+
+    protected function validate_product()       // Validate incoming request data
     {
         return request()->validate([
             'name' => 'required | min:3 | max:20 | string | unique:App\Models\Product,name ',

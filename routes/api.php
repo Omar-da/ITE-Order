@@ -21,7 +21,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware(['auth:api','refresh']);
     Route::get('/me', [AuthController::class, 'me'])->name('me')->middleware('auth:api');
     Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh')->middleware('refresh');
-    Route::get('/admin/{user}',[AuthController::class, 'to_admin'])->name('to_admin')->middleware('role:admin');
+    Route::get('/admin/{user}',[AuthController::class, 'to_admin'])->name('to_admin')->middleware('role:owner');
+    Route::get('/user/{user}',[AuthController::class, 'to_user'])->name('to_user')->middleware('role:owner');
 
 });
 
