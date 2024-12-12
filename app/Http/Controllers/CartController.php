@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
+use App\Models\Order;
 use App\Models\Product;
-use App\Models\User;
-use Illuminate\Support\Facades\Notification as FacadesNotification;
-use App\Notifications\Order;
+use App\Traits\cartTrait;
 
 class CartController extends Controller
 {
+    use cartTrait;
+
     public function add(Product $product)
     {
         $user = auth()->user();
+        if(!$product->available_quantity)
+            return response()->json('Sorry, product out of stock');
+
+        $product->update([
+            'available_quantity' => $product->available_quantity - 1
+        ]);
+
         if($user->products()->where('product_id',$product->id)->exists())
         {
             $quantity = $user->products()->find($product->id)->pivot->quantity + 1;
@@ -41,59 +50,75 @@ class CartController extends Controller
         if($user->products()->find($product->id)->pivot->quantity == 1)
         {
             $user->products()->detach($product);
-            return response()->json('Product removed successfully');
+            $quantity = 0;
         }
         else
         {
             $quantity = $user->products()->find($product->id)->pivot->quantity - 1;
             $user->products()->updateExistingPivot($product->id,['quantity' => $quantity, 'total_price' => $product->price * $quantity]);
-            return response()->json([
-                'message' => 'Quantity of products has decreased',
-                'quantity' => $quantity
-            ]);
         }
+        
+        $product->update([
+            'available_quantity' => $product->available_quantity + 1
+        ]);
+
+        return response()->json([
+            'message' => 'Quantity of products has decreased',
+            'quantity' => $quantity
+        ]);
     }
 
     public function index()
     {        
-        return response()->json($this->get_content_of_cart(auth()->user()));
+        return response()->json(['cart' => $this->get_content_of_cart(auth()->user())]);
     }
     
     
-    public function order(Product $product)
+    public function order()
     {
-
         $data = request()->validate([
             'location' => 'required | string | min:3 | max:100',
         ]);
         
         $user = auth()->user();
-        FacadesNotification::send(User::where('role','admin')->get(),new Order($user, $data['location'], $this->get_content_of_cart($user)));
+        $cart = $this->get_content_of_cart($user);
+        $location = $data['location'];
 
+        $order = Order::create([
+            'user_id' => $user->id,
+            'cart' => json_encode($cart),
+            'location' => $location,
+            'status' => 'Waiting for response'
+        ]);
+        
+
+        Notification::create([
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'cart' => json_encode($cart),
+            'location' => $location,
+            'updated' => false
+        ]);
+        
+        return response()->json([
+            'message' => 'The order has sent, you will receive response from admin with accepting or rejecting',
+            'order' => $order
+        ]);
     }
 
-    protected function get_content_of_cart(User $user)
+    public function destroy()
     {
-        $data = [];
-        $bill = 0;
-        foreach($user->products as $product)
-            {
-                $data[] = [
-                'product_id' => $product->id,
-                'name' => $product->name,
-                'image' => $product->image,
-                'description' => $product->description,
-                'available_quantity' => $product->available_quantity,
-                'market_id' => $product->market->id,
-                'price_for_one_piece' => $product->price,
-                'quantity' => $product->pivot->quantity,
-                'total_price' => $product->pivot->total_price
-                ];
-                $bill+= $product->pivot->total_price;
-            }   
-        return [
-            'data' => $data,
-            'bill' => $bill
-        ];
+        $user = auth()->user();
+
+        foreach($user->products as $product_in_cart)
+        {
+            $product_in_market = Product::find($product_in_cart->id);
+            $product_in_market->update([
+                'available_quantity' => $product_in_market->available_quantity + $product_in_cart->quantity
+            ]);
+        }
+        $user->products()->detach();
+
+        return response()->json('The cart is empty');
     }
 }

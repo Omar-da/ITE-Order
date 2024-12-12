@@ -55,8 +55,6 @@ class MarketController extends Controller
     {
         return response()->json([
             'market' => $market ,
-            'image_of_market' => $this->get_image($market) ,
-            'products' => $market->products
         ]);
     }
 

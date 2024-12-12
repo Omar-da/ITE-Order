@@ -1,0 +1,47 @@
+[33mcommit dd6e6ea99e5242e39fa9c4203bee0a8add36365c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Tue Dec 3 20:52:40 2024 +0300
+
+    - adding cart feature
+    - modifying the way of retrieving markets with images in market controller
+    - adding notifications feature for admin when he receives orders
+
+[33mcommit ba6475162dd5ea52d55136ac4643c6574df296f3[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Tue Dec 3 17:20:07 2024 +0300
+
+    adding role feature
+    - renaming "number_of_pieces" to "available quantity" field in product model
+    - changing function of checking image path to is_file
+
+[33mcommit a08575ed38fa471c41aba9e02406637351a6064c[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Sun Dec 1 10:45:52 2024 +0300
+
+    - building products section
+
+[33mcommit c427add94fa7071065e486a8cf265613a54bcdfc[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Sat Nov 30 20:55:00 2024 +0300
+
+    - building markets section
+    - adding guest middeware
+    - building images system
+
+[33mcommit f334b43728e413c6457989b31ab95287bde91394[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Sat Nov 30 09:55:46 2024 +0300
+
+    modifying auth feature and finishing it
+
+[33mcommit d9e7fd1f0d7fb6c49d68b7b4e6d12c3a139471e4[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Wed Nov 27 09:26:56 2024 +0300
+
+    adding auth feature with JWT
+
+[33mcommit 4f23d604c1a5fac2c2cac6e447b5b9513e5d7341[m
+Author: Omar-da <omaraldalati3@gmail.com>
+Date:   Tue Nov 26 08:18:15 2024 +0300
+
+    empty project

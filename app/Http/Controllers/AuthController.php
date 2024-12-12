@@ -142,6 +142,19 @@ class AuthController extends Controller
             ]);
     }
 
+
+    public function to_admin(User $user)
+    {
+        if($user->role == 'admin')
+        return response()->json('This is an admin not a user');
+    
+        $user->update([
+            'role' => 'admin'
+        ]);
+
+        return response()->json('The user become an admin');
+    }
+
     /**
      * Get the token array structure.
      *

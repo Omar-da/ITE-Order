@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\MarketController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 
 Route::get('/welcome',function(){
@@ -20,6 +21,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware(['auth:api','refresh']);
     Route::get('/me', [AuthController::class, 'me'])->name('me')->middleware('auth:api');
     Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh')->middleware('refresh');
+    Route::get('/admin/{user}',[AuthController::class, 'to_admin'])->name('to_admin')->middleware('role:admin');
 
 });
 
@@ -48,13 +50,34 @@ Route::prefix('products')->middleware('auth:api')->group(function(){
 
 });
 
+
 // Cart's Routes
 
-Route::middleware('role:user')->group(function(){
+Route::prefix('cart')->middleware('role:user')->group(function(){
     
-    Route::get('/cart/add_to_cart/{product}',[CartController::class,'add'])->name('cart.add');
-    Route::get('/cart/remove_from_cart/{product}',[CartController::class,'remove'])->name('cart.remove');
-    Route::get('/cart/products',[CartController::class,'index'])->name('cart.index');
-    Route::post('/cart/order',[CartController::class,'order'])->name('cart.order');
+    Route::get('/add_to_cart/{product}',[CartController::class,'add'])->name('cart.add');
+    Route::get('/remove_from_cart/{product}',[CartController::class,'remove'])->name('cart.remove');
+    Route::get('/products',[CartController::class,'index'])->name('cart.index');
+    Route::post('/order',[CartController::class,'order'])->name('cart.order');
+    Route::delete('/delete',[CartController::class,'destroy'])->name('cart.destroy');
+});
+
+
+// Order's Routes
+
+Route::prefix('orders')->middleware('role:user')->group(function(){
+
+    Route::get('/',[OrderController::class,'index'])->name('orders.index');
+    Route::put('/update/{order}',[OrderController::class,'update'])->name('orders.update');
+    Route::delete('/delete/{order}',[OrderController::class,'destroy'])->name('orders.destroy');
+    Route::get('/period_of_editing_has_finished/{order}',[OrderController::class,'period_of_editing_has_finished'])->name('orders.order_confirmation');
+    Route::get('/restore/{order}',[OrderController::class,'restore'])->name('orders.restore');
+    
+});
+
+Route::prefix('orders')->middleware('role:admin')->group(function(){
+
+    Route::get('/admin_response/{order}',[OrderController::class,'admin_response'])->name('orders.response');
+    Route::get('/delivered/{order}',[OrderController::class,'delivered'])->name('orders.delivered');
 
 });
