@@ -96,7 +96,7 @@ class ProductController extends Controller
             'name' => 'required | min:3 | max:20 | string | unique:App\Models\Product,name ',
             'image' => 'nullable | image | max:5120',
             'description' => 'required | min:3 | max:200 | string',
-            'price' =>  'required | numeric',
+            'price' =>  'required | numeric | min: 0',
             'available_quantity' => 'required | numeric | min: 1'
         ]);
     }

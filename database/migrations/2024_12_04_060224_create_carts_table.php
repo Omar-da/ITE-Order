@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Product::class);
             $table->foreignIdFor(User::class);
-            $table->integer('quantity');
-            $table->integer('total_price');
+            $table->unsignedInteger('quantity');
+            $table->unsignedBigInteger('total_price');
             $table->timestamps();
         });
     }
