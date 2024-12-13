@@ -1,1 +1,1 @@
-Note: create these folders ('profiles','markets','products') in 'Public' folder
+Note: create 'images' folder in 'public' and create these folders ('profiles','markets','products') in it to store images 
