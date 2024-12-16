@@ -15,6 +15,7 @@ class MarketController extends Controller
         $markets = Market::all();
 
         // Combine markets with their images
+        $marketsWithImages = [];
         foreach($markets as $market)
             $marketsWithImages[] = [
                 'market' => $market,
@@ -91,22 +92,6 @@ class MarketController extends Controller
         return response()->json([
             'message' => 'Market deleted successfully'
         ]);
-    }
-
-
-
-    protected function get_image(Market $market)
-    {
-        // Get path of image
-        $imagePath = public_path('images/markets/' . $market->image);
-
-        // Get data of image
-        if (is_file($imagePath)) {
-            $imageData = base64_encode(file_get_contents($imagePath));
-            return $imageData;
-        }
-        else
-            return null;
     }
 
 

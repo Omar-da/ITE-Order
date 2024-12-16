@@ -74,22 +74,6 @@ class ProductController extends Controller
 
 
 
-    protected function get_image(Product $product)
-    {
-        // Get path of image
-        $imagePath = public_path('images/products/' . $product->image);
-
-        // Get data of image
-        if (is_file($imagePath)) {
-            $imageData = base64_encode(file_get_contents($imagePath));
-            return $imageData;
-        }
-        else
-            return null;
-    }
-
-
-
     protected function validate_product()       // Validate incoming request data
     {
         return request()->validate([

@@ -2,6 +2,9 @@
 
 namespace App\Traits;
 
+use App\Models\Market;
+use App\Models\Product;
+
 trait storeImagesTrait {
 public  function storeImage($image, $folder)
 {
@@ -16,6 +19,8 @@ public  function storeImage($image, $folder)
 
     return $name;
 }
+
+
 
 public function updateImage($newImage, $folder, $lastImage)
 {
@@ -34,4 +39,25 @@ public function updateImage($newImage, $folder, $lastImage)
     
     return $name;
 }
+
+
+
+public function get_image($object)
+    {
+        if($object instanceof Product)
+            $folder = 'products';
+        else if($object instanceof Market)
+            $folder = 'markets';
+
+        // Get path of image
+        $imagePath = public_path("images/$folder/" . $object->image);
+
+        // Get data of image
+        if (is_file($imagePath)) {
+            $imageData = base64_encode(file_get_contents($imagePath));
+            return $imageData;
+        }
+        else
+            return null;
+    }
 }
