@@ -74,6 +74,28 @@ class ProductController extends Controller
 
 
 
+    public function add_to_favorites(Product $product)
+    {
+        auth()->user()->favoritesProducts()->attach($product);
+
+        return response()->json([
+            'message' => 'Product has been added to favorites successfully',
+        ]);
+    }
+
+
+   
+    public function index_favorites()
+    {
+        $favorites = auth()->user()->favoritesProducts;
+
+        return response()->json([
+            'favorite_products' => $favorites
+        ]);
+    }
+
+
+
     protected function validate_product()       // Validate incoming request data
     {
         return request()->validate([

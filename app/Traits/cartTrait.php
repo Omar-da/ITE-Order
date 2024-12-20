@@ -10,7 +10,7 @@ trait cartTrait {
     public function get_content_of_cart(User $user)
         {
             $bill = 0;
-            foreach($user->products as $product)
+            foreach($user->cartItems() as $product)
                 {
                     $cart[] = [
                     'product_id' => $product->id,

@@ -44,10 +44,12 @@ Route::prefix('markets')->middleware('auth:api')->group(function(){
 
 Route::prefix('products')->middleware('auth:api')->group(function(){
     
+    Route::get('/favorites',[ProductController::class,'index_favorites'])->name('products.favorites')->middleware('role:user');
     Route::get('/{product}',[ProductController::class,'show'])->name('products.show');
     Route::post('/{market}',[ProductController::class,'store'])->name('products.store')->middleware('role:admin');
     Route::put('/{product}',[ProductController::class,'update'])->name('products.update')->middleware('role:admin');
     Route::delete('/{product}',[ProductController::class,'destroy'])->name('products.delete')->middleware('role:admin');
+    Route::get('/add_to_favorites/{product}',[ProductController::class,'add_to_favorites'])->name('products.add_to_favorites')->middleware('role:user');
 
 });
 

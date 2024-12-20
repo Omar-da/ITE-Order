@@ -30,20 +30,20 @@ class CartController extends Controller
         ]);
 
         // Increase the quantity in the cart if the product is existed 
-        if($user->products()->where('product_id',$product->id)->exists())
+        if($user->cartItems()->where('product_id',$product->id)->exists())
         {
-            $quantity = $user->products()->find($product->id)->pivot->quantity + 1;
-            $user->products()->updateExistingPivot($product->id,['quantity' => $quantity, 'total_price' => $product->price * $quantity]);
+            $quantity = $user->cartItems()->find($product->id)->pivot->quantity + 1;
+            $user->cartItems()->updateExistingPivot($product->id,['quantity' => $quantity, 'total_price' => $product->price * $quantity]);
         }
         // Add the product to the cart for the first time
         else
         {
-            $user->products()->attach($product,['quantity' => 1, 'total_price' => $product->price]);
+            $user->cartItems()->attach($product,['quantity' => 1, 'total_price' => $product->price]);
         }
 
         // Calculate the number of products in the cart in pieces
         $count = 0;
-        foreach($user->products as $product)
+        foreach($user->cartItems as $product)
             $count+= $product->pivot->quantity;
 
         return response()->json([
@@ -59,20 +59,20 @@ class CartController extends Controller
         $user = auth()->user();
 
         // Check if the product is existed in the cart
-        if(!$user->products()->where('product_id',$product->id)->exists())
+        if(!$user->cartItems()->where('product_id',$product->id)->exists())
             return response()->json(['error' => 'Product not found'], 404);
 
         // Remove the product if there is just one piece of it
-        if($user->products()->find($product->id)->pivot->quantity == 1)
+        if($user->cartItems()->find($product->id)->pivot->quantity == 1)
         {
-            $user->products()->detach($product);
+            $user->cartItems()->detach($product);
             $quantity = 0;
         }
         // Decrease the quantity of product if there are more than one piece
         else
         {
-            $quantity = $user->products()->find($product->id)->pivot->quantity - 1;
-            $user->products()->updateExistingPivot($product->id,['quantity' => $quantity, 'total_price' => $product->price * $quantity]);
+            $quantity = $user->cartItems()->find($product->id)->pivot->quantity - 1;
+            $user->cartItems()->updateExistingPivot($product->id,['quantity' => $quantity, 'total_price' => $product->price * $quantity]);
         }
         
         // Increase the quantity of the products in the market
@@ -137,7 +137,7 @@ class CartController extends Controller
         $user = auth()->user();
 
         // Modifying the quantity of the products in markets 
-        foreach($user->products as $product_in_cart)
+        foreach($user->cartItems as $product_in_cart)
         {
             $product_in_market = Product::find($product_in_cart->id);
             $product_in_market->update([
@@ -146,7 +146,7 @@ class CartController extends Controller
         }
 
         // Destroy the cart
-        $user->products()->detach();
+        $user->cartItems()->detach();
 
         return response()->json('The cart is empty');
     }

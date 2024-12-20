@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Market;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,8 +20,8 @@ return new class extends Migration
             $table->string('description');
             $table->unsignedBigInteger('price');
             $table->unsignedInteger('available_quantity');
-            $table->timestamps();
             $table->foreignIdFor(Market::class);
+            $table->timestamps();
         });
     }
 };

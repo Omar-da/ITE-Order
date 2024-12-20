@@ -106,7 +106,7 @@ class OrderController extends Controller
         else if(request()->approval == 'false')
             {
                 // Delete the cart
-                auth()->user()->products()->detach();
+                auth()->user()->cartItems()->detach();
 
                 // Modify the status of the order
                 $order->update([
@@ -133,7 +133,7 @@ class OrderController extends Controller
 
         // Delete the cart
         $user = auth()->user();
-        $user->products->detach();
+        $user->cartItems->detach();
 
         return response()->json('Order in way');
     }

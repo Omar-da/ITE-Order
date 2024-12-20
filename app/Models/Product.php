@@ -20,8 +20,13 @@ class Product extends Model
         return $this->belongsTo(Market::class);
     }
 
-    public function users()
+    public function user_of_cart()
     {
         return $this->belongsToMany(User::class, 'carts')->withPivot(['quantity', 'total_price']);
+    }
+
+    public function user_of_favorites()
+    {
+        return $this->belongsToMany(User::class,'favorites');
     }
 }
