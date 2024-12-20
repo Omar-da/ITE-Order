@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Market;
 use App\Traits\storeImagesTrait;
+use Illuminate\Http\Request;
 
 class MarketController extends Controller
 {
@@ -91,6 +92,17 @@ class MarketController extends Controller
 
         return response()->json([
             'message' => 'Market deleted successfully'
+        ]);
+    }
+
+
+
+    public function search(Request $request)
+    {
+        $markets = Market::where('name',$request->name)->get();
+
+        return response()->json([
+            'markets' => $markets
         ]);
     }
 

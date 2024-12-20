@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Market;
 use App\Models\Product;
 use App\Traits\storeImagesTrait;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -91,6 +92,17 @@ class ProductController extends Controller
 
         return response()->json([
             'favorite_products' => $favorites
+        ]);
+    }
+
+
+
+    public function search(Request $request)
+    {
+        $products = Product::where('name',$request->name)->get();
+
+        return response()->json([
+            'products' => $products
         ]);
     }
 

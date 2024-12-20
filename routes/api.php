@@ -32,6 +32,7 @@ Route::prefix('auth')->group(function () {
 Route::prefix('markets')->middleware('auth:api')->group(function(){
     
     Route::get('',[MarketController::class,'index'])->name('markets');
+    Route::get('/search',[MarketController::class,'search'])->name('markets.search');
     Route::get('/{market}',[MarketController::class,'show'])->name('markets.show');
     Route::post('',[MarketController::class,'store'])->name('markets.store')->middleware('role:admin');
     Route::put('/{market}',[MarketController::class,'update'])->name('markets.update')->middleware('role:admin');
@@ -45,6 +46,7 @@ Route::prefix('markets')->middleware('auth:api')->group(function(){
 Route::prefix('products')->middleware('auth:api')->group(function(){
     
     Route::get('/favorites',[ProductController::class,'index_favorites'])->name('products.favorites')->middleware('role:user');
+    Route::get('/search',[ProductController::class,'search'])->name('products.search');
     Route::get('/{product}',[ProductController::class,'show'])->name('products.show');
     Route::post('/{market}',[ProductController::class,'store'])->name('products.store')->middleware('role:admin');
     Route::put('/{product}',[ProductController::class,'update'])->name('products.update')->middleware('role:admin');
