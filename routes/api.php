@@ -23,7 +23,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh')->middleware('refresh');
     Route::get('/admin/{user}',[AuthController::class, 'to_admin'])->name('to_admin')->middleware('role:owner');
     Route::get('/user/{user}',[AuthController::class, 'to_user'])->name('to_user')->middleware('role:owner');
-
+    Route::put('/update_profile',[AuthController::class, 'updateProfile'])->name('update_profile');
+    
 });
 
 

@@ -85,6 +85,25 @@ class AuthController extends Controller
 
     
     
+    public function updateProfile(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required | string | min:3 | max:20',
+            'image' => 'nullable  | image | max:5120',
+            'location' => 'nullable | string | min:3 | max:100',
+        ]);
+
+        $user = auth()->user();
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user
+        ]);
+    }
+
+
+    
     public function me()
     {
         return response()->json(auth()->user());
