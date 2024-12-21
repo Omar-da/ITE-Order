@@ -24,7 +24,10 @@ class RefreshMiddleware
         
         // Check if refresh token is existed
         if (!$refreshToken)
-            return response()->json(['error' => 'Refresh token is required'], 400);
+            return response()->json([
+                'خطأ' => 'الريفرش توكن مطلوب',
+                'error' => 'Refresh token is required',
+            ], 400);
     
         // Check if it's an expired token
         try{
@@ -32,18 +35,27 @@ class RefreshMiddleware
         }
         catch(JWTException $e)
         {
-            return response()->json(['error' => 'Token expired'], 401);
+            return response()->json([
+                'خطأ' => 'انتهت صلاحية التوكن',
+                'error' => 'Token expired',
+            ], 401);
         }
 
         // Check if it's a valid refresh token
         if ($payload['type'] !== 'refresh') {
-            return response()->json(['error' => 'Invalid token type'], 401);
+            return response()->json([
+                'خطأ' => 'توكن معطل',
+                'error' => 'Invalid token type',
+            ], 401);
         }
         
         // Check if it's a blacklisted refresh token
         $jti = $payload->get('jti');
         if(Cache::has("blacklisted_refresh_token_{$jti}"))
-            return response()->json(['error' => 'Unauthenticated'], 401);
+            return response()->json([
+                'خطأ' => 'لا تمتلك الصلاحية',
+                'error' => 'Unauthenticated',
+            ], 401);
 
         return $next($request);
     }

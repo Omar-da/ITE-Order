@@ -23,7 +23,10 @@ class OrderController extends Controller
     {
         // Prevent updating if order has delivered or in way
         if($order->status == 'In way' || $order->status == 'Delivered')
-            return response()->json('Sorry, order can not be changed');
+            return response()->json([
+            'رسالة' => 'عذراً لا يمكن تعديل الطلب',
+            'message' => 'Sorry, order can not be changed',
+            ]);
 
         $user = auth()->user();
 
@@ -37,7 +40,10 @@ class OrderController extends Controller
 
         // Prevent delete the order
         if($cart['products'] == null)
-            return response()->json('Sorry, you must add one product at least');
+            return response()->json([
+                'رسالة' => 'عذراً يجب إضافة منتج واحد على الأقل',
+                'message' => 'Sorry, you must add one product at least',
+            ]);
 
         $location = $data['location'];
 
@@ -56,6 +62,7 @@ class OrderController extends Controller
         ]);
         
         return response()->json([
+            'رسالة' => 'تم تعديل المنتج بنجاح',
             'message' => 'Order updated successfully',
             'order' => $order
         ]);
@@ -67,7 +74,10 @@ class OrderController extends Controller
     {
         // Prevent deleting the order if it is in 'Waiting for response' status
         if($order->status != 'Waiting for response')
-            return response()->json('Soryy, order can not be deleted');
+            return response()->json([
+                'رسالة' => 'عذراً لا يمكن حذف الطلب',
+                'message' => 'Soryy, order can not be deleted',
+            ]);
     
         // Delete the order (soft delete)
         $order->update([
@@ -80,6 +90,7 @@ class OrderController extends Controller
         $noti->delete();
         
         return response()->json([
+            'رسالة' => 'تم حذف الطلب',
             'message' => 'Order deleted successfully',
             'order' => $order
         ]);
@@ -91,7 +102,10 @@ class OrderController extends Controller
     {
         // Check if the order is waiting for response
         if($order->status != 'Waiting for response')
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->json([
+            'خطأ' => 'الطلب غير موجود',
+            'error' => 'Order not found',
+            ], 404);
 
         // Check of the response of admin
         if(request()->approval == 'true')
@@ -116,7 +130,10 @@ class OrderController extends Controller
                 // Delete order (soft delete)
                 $order->delete();
 
-                return response()->json('Admin has not approved your order, try again later');
+                return response()->json([
+                    'رسالة' => 'تم رفض طلبك من قبل المشرف ، حاول في وقت لاحق',
+                    'message' => 'Admin has not approved your order, try again later',
+                ]);
             }
         else
             return response()->json('Invalid value');
@@ -135,7 +152,10 @@ class OrderController extends Controller
         $user = auth()->user();
         $user->cartItems->detach();
 
-        return response()->json('Order in way');
+        return response()->json([
+            'رسالة' => 'الطلب قيد التوصيل',
+            'message' => 'Order in way',
+        ]);
     }
 
 
@@ -147,7 +167,10 @@ class OrderController extends Controller
             'status' => 'Delivered'
         ]);
 
-        return response()->json('Order has delivered, thank you for your trust');
+        return response()->json([
+            'رسالة' => 'تم توصيل الطلب ، شكراً لثقتكم',
+            'message' => 'Order has delivered, thank you for your trust',
+        ]);
     }
 
 
@@ -172,6 +195,7 @@ class OrderController extends Controller
         ]);
 
         return response()->json([
+            'رسالة' => 'تم إرسال الطلب ، سيتم إرسال إجابة من المشرف بالقبول أو الرفض',
             'message' => 'The order has sent, you will receive response from admin with accepting or rejecting',
             'order' => $order
         ]);

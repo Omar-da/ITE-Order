@@ -18,11 +18,17 @@ class CartController extends Controller
 
         // Check if the product is existed 
         if(!$product)
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json([
+            'خطأ' => 'المنتج غير موجود',
+            'error' => 'Product not found',
+            ], 404);
 
         // Check if there is enough quantity
         if(!$product->available_quantity)
-            return response()->json('Sorry, product out of stock');
+            return response()->json([
+            'رسالة' => 'عذراً نفدت الكمية',
+            'message' => 'Sorry, product out of stock',
+            ]);
 
         // Decrease the quantity of the product from the market
         $product->update([
@@ -43,10 +49,11 @@ class CartController extends Controller
 
         // Calculate the number of products in the cart in pieces
         $count = 0;
-        foreach($user->cartItems as $product)
-            $count+= $product->pivot->quantity;
+        foreach($user->cartItems as $item)
+            $count+= $item->pivot->quantity;
 
         return response()->json([
+            'رسالة' => 'تم إضافة المنتج بنجاح',
             'message' => 'Product added successfully',
             'number_of_products_in_the_cart' => $count
         ]);
@@ -60,7 +67,10 @@ class CartController extends Controller
 
         // Check if the product is existed in the cart
         if(!$user->cartItems()->where('product_id',$product->id)->exists())
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json([
+            'خطأ' => 'المنتج غير موجود',
+            'error' => 'Product not found',
+            ], 404);
 
         // Remove the product if there is just one piece of it
         if($user->cartItems()->find($product->id)->pivot->quantity == 1)
@@ -80,9 +90,15 @@ class CartController extends Controller
             'available_quantity' => $product->available_quantity + 1
         ]);
 
+        // Calculate the number of products in the cart in pieces
+        $count = 0;
+        foreach($user->cartItems as $item)
+            $count+= $item->pivot->quantity;
+        
         return response()->json([
+            'رسالة' => 'تم إرجاع المنتج',
             'message' => 'Quantity of products has decreased',
-            'quantity' => $quantity
+            'number_of_products_in_the_cart' => $count
         ]);
     }
 
@@ -125,6 +141,7 @@ class CartController extends Controller
         ]);
         
         return response()->json([
+            'رسالة' => 'تم إرسال الطلب ، سيتم إرسال إجابة من المشرف بالقبول أو الرفض',
             'message' => 'The order has sent, you will receive response from admin with accepting or rejecting',
             'order' => $order
         ]);
@@ -137,17 +154,20 @@ class CartController extends Controller
         $user = auth()->user();
 
         // Modifying the quantity of the products in markets 
-        foreach($user->cartItems as $product_in_cart)
+        foreach($user->cartItems as $item)
         {
-            $product_in_market = Product::find($product_in_cart->id);
+            $product_in_market = Product::find($item->id);
             $product_in_market->update([
-                'available_quantity' => $product_in_market->available_quantity + $product_in_cart->quantity
+                'available_quantity' => $product_in_market->available_quantity + $item->quantity
             ]);
         }
 
         // Destroy the cart
         $user->cartItems()->detach();
 
-        return response()->json('The cart is empty');
+        return response()->json([
+            'رسالة' => 'السلة فارغة',
+            'message' => 'The cart is empty',
+        ]);
     }
 }

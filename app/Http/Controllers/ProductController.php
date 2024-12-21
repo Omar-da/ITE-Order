@@ -26,6 +26,7 @@ class ProductController extends Controller
         $product = Product::create($data);
 
         return response()->json([
+            'رسالة' => 'تم إنشاء المنتج بنجاح',
             'message' => 'Product created successfully',
             'product' => $product,
             'image_of_product' => $this->get_image($product),
@@ -36,6 +37,13 @@ class ProductController extends Controller
     
     public function show(Product $product)        // Get the product with its image
     {
+        // Check if product is existed
+        if(!isset($product))
+            return response()->json([
+                'خطأ' => 'المنتج غير موجود',
+                'error' => 'Product not found',
+            ], 404);
+
         return response()->json([
             'product' => $product ,
             'image_of_product' => $this->get_image($product) ,
@@ -57,6 +65,7 @@ class ProductController extends Controller
         $product->update($data);
 
         return response()->json([
+            'رسالة' => 'تم تعديل معلومات المنتج بنجاح',
             'message' => 'Data updated successfully',
             'product' => $product,
             'image_of_product' => $this->get_image($product),
@@ -69,7 +78,8 @@ class ProductController extends Controller
     {
         $product->delete();
         return response()->json([
-            'message' => 'Product deleted successfully'
+            'رسالة' => 'تم حذف المنتج بنجاح',
+            'message' => 'Product deleted successfully',
         ]);
     }
 
@@ -77,10 +87,18 @@ class ProductController extends Controller
 
     public function add_to_favorites(Product $product)
     {
+        // Check if product is existed
+        if(!isset($product))
+            return response()->json([
+                'خطأ' => 'المنتج غير موجود',
+                'error' => 'Product not found',
+            ], 404);
+            
         auth()->user()->favoritesProducts()->attach($product);
 
         return response()->json([
-            'message' => 'Product has been added to favorites successfully',
+            'رسالة' => 'تم إضافة المنتج إلى المفضلة',
+            'message' => 'Product has been added to favorites',
         ]);
     }
 

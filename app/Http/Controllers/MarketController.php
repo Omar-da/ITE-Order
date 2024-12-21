@@ -44,6 +44,7 @@ class MarketController extends Controller
         $market = Market::create($data);
 
         return response()->json([
+            'رسالة' => 'تم إنشاء المطعم بنجاح',
             'message' => 'Market created successfully',
             'market' => $market,
             'image_of_market' => $this->get_image($market),
@@ -55,6 +56,13 @@ class MarketController extends Controller
     public function show($market)        // Get market with its image and products
     {
         $market = Market::with('products')->find($market);
+        
+        // Check if market is existed
+        if(!isset($market))
+            return response()->json([
+                'خطأ' => 'المطعم غير موجود',
+                'error' => 'Market not found',
+            ], 404);
 
         return response()->json([
             'market' => $market ,
@@ -77,6 +85,7 @@ class MarketController extends Controller
         $market->update($data);
 
         return response()->json([
+            'رسالة' => 'تم تعديل معلومات المطعم بنجاح',
             'message' => 'Data updated successfully',
             'market' => $market,
             'image_of_market' => $this->get_image($market),
@@ -91,7 +100,8 @@ class MarketController extends Controller
         $market->delete();
 
         return response()->json([
-            'message' => 'Market deleted successfully'
+            'رسالة' => 'تم حذف المطعم بنجاح',
+            'message' => 'Market deleted successfully',
         ]);
     }
 

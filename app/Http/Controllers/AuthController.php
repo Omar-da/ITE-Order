@@ -49,6 +49,7 @@ class AuthController extends Controller
 
         // Return response with refresh and access tokens and user details
         return response()->json([
+            'رسالة' => 'تم إنشاء الحساب بنجاح',
             'message' => 'User registered successfully',
             'accessToken' => $this->respondWithToken($accessToken, $expForAccessToken),
             'refreshToken' =>$this->respondWithToken($refreshToken, $expForRefreshToken),
@@ -64,7 +65,10 @@ class AuthController extends Controller
         // Check of number if it exists
         $user = User::where('phone_number', $request->phone_number)->first();
         if (!$user)
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->json([
+            'خطأ' => 'المستخدم غير موجود',
+            'error' => 'User not found',
+            ],404);
 
         // Set expiration time for tokens
         $expForAccessToken = $this->setExpirationTime('access');
@@ -76,6 +80,7 @@ class AuthController extends Controller
 
         // Return response with refresh and access tokens and user details
         return response()->json([
+            'رسالة' => 'تم تسجيل الدخول بنجاح',
             'message' => 'User login successfully',
             'access_token' => $this->respondWithToken($accessToken, $expForAccessToken),
             'refresh_token' => $this->respondWithToken($refreshToken, $expForRefreshToken),
@@ -97,6 +102,7 @@ class AuthController extends Controller
         $user->update($data);
 
         return response()->json([
+            'رسالة' => 'تم تعديل الملف الشخصي بنجاح',
             'message' => 'Profile updated successfully',
             'user' => $user
         ]);
@@ -131,10 +137,16 @@ class AuthController extends Controller
             // Blacklist the refresh token (invalidate it)
             Cache::forever("blacklisted_refresh_token_{$jti}", true);            
 
-            return response()->json(['message' => 'Successfully logged out'], 200);
+            return response()->json([
+                'رسالة' => 'تم تسجيل الخروج بنجاح',
+                'message' => 'Successfully logged out',
+            ], 200);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to logout'], 500);
+            return response()->json([
+                'خطأ' => 'فشل تسجيل الخروج',
+                'error' => 'Failed to logout',
+            ], 500);
         }
     }
 
@@ -158,17 +170,26 @@ class AuthController extends Controller
     public function to_admin(User $user)        // Promote user to admin
     {
         // Prevent changing the role of the owner
-        if($user->id == 1)
-            return response()->json('Owner can not be changed', 403);
+        if($user->role == 'owner')
+            return response()->json([
+            'خطأ' => 'لا يمكن تخفيض رتبة مالك التطبيق',
+            'error' => 'Owner can not be changed',
+            ],403);
 
         if($user->role == 'admin')
-            return response()->json('This is an admin not a user');
+            return response()->json([
+            'رسالة' => 'الحساب برتبة مشرف مسبقاً',
+            'message' => 'This is an admin not a user',
+            ]);
     
         $user->update([
             'role' => 'admin'
         ]);
 
-        return response()->json('The user become an admin');
+        return response()->json([
+            'رسالة' => 'تم ترقيته إلى مشرف',
+            'message' => 'The user become an admin'
+        ]);
     }
 
 
@@ -176,17 +197,26 @@ class AuthController extends Controller
     public function to_user(User $user)        // demote admin to user
     {
         // Prevent changing the role of the owner
-        if($user->id == 1)
-            return response()->json('Owner can not be changed', 403);
+        if($user->role == 'owner')
+        return response()->json([
+            'خطأ' => 'لا يمكن تخفيض رتبة مالك التطبيق',
+            'error' => 'Owner can not be changed',
+            ],403);
 
         if($user->role == 'user')
-            return response()->json('This is a user not an admin');
+            return response()->json([
+                'رسالة' => 'الحساب برتبة مستخدم مسبقاً',
+                'message' => 'This is a user not an admin',
+                ]);
     
         $user->update([
             'role' => 'user'
         ]);
 
-        return response()->json('The admin become a user');
+        return response()->json([
+            'رسالة' => 'تم تخفيض الرتبة إلى مستخدم',
+            'message' => 'The admin become a user'
+        ]);
     }
 
 
