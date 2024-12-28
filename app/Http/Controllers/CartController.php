@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\FcmService;
 use App\Traits\cartTrait;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     use cartTrait;
+
+    public function __construct(public FcmService $fcmService)    // Injection the fcm sevice
+    {}
+
+
 
     public function add(Product $product)
     {
@@ -68,7 +74,6 @@ class CartController extends Controller
         // Check if the product is existed in the cart
         if(!$user->cartItems()->where('product_id',$product->id)->exists())
             return response()->json([
-            'خطأ' => 'المنتج غير موجود',
             'error' => 'Product not found',
             ], 404);
 
@@ -128,7 +133,8 @@ class CartController extends Controller
             'user_id' => $user->id,
             'cart' => json_encode($cart),
             'location' => $location,
-            'status' => 'Waiting for response'
+            'status' => 'Waiting for response',
+            'is_restored' => false
         ]);
         
         // Create notification
@@ -140,8 +146,11 @@ class CartController extends Controller
             'updated' => false
         ]);
         
+        // notification
+        foreach($user->fcm_tokens as $fcm_token)
+            $this->fcmService->sendNotification($fcm_token,'Order',__('order.create'));
+
         return response()->json([
-            'رسالة' => 'تم إرسال الطلب ، سيتم إرسال إجابة من المشرف بالقبول أو الرفض',
             'message' => 'The order has sent, you will receive response from admin with accepting or rejecting',
             'order' => $order
         ]);
@@ -153,7 +162,7 @@ class CartController extends Controller
     {
         $user = auth()->user();
 
-        // Modifying the quantity of the products in markets 
+        // Modify the quantity of the products in markets 
         foreach($user->cartItems as $item)
         {
             $product_in_market = Product::find($item->id);

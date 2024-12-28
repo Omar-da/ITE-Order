@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('location');
             $table->string('status');
             $table->softDeletes('rejected_at');
+            $table->boolean('is_restored');
             $table->timestamps();
         });
     }

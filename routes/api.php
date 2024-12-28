@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\LocalizationController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -23,7 +24,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh')->middleware('refresh');
     Route::get('/admin/{user}',[AuthController::class, 'to_admin'])->name('to_admin')->middleware('role:owner');
     Route::get('/user/{user}',[AuthController::class, 'to_user'])->name('to_user')->middleware('role:owner');
-    Route::put('/update_profile',[AuthController::class, 'updateProfile'])->name('update_profile');
+    Route::put('/update_profile',[AuthController::class, 'updateProfile'])->name('update_profile')->middleware('auth:api');
     
 });
 
@@ -53,6 +54,7 @@ Route::prefix('products')->middleware('auth:api')->group(function(){
     Route::put('/{product}',[ProductController::class,'update'])->name('products.update')->middleware('role:admin');
     Route::delete('/{product}',[ProductController::class,'destroy'])->name('products.delete')->middleware('role:admin');
     Route::get('/add_to_favorites/{product}',[ProductController::class,'add_to_favorites'])->name('products.add_to_favorites')->middleware('role:user');
+    Route::get('/remove_from_favorites/{product}',[ProductController::class,'remove_from_favorites'])->name('products.remove_from_favorites')->middleware('role:user');
 
 });
 
@@ -74,16 +76,23 @@ Route::prefix('cart')->middleware('role:user')->group(function(){
 Route::prefix('orders')->middleware('role:user')->group(function(){
 
     Route::get('/',[OrderController::class,'index'])->name('orders.index');
+    Route::get('/index_delivered_orders',[OrderController::class,'index_delivered_orders'])->name('orders.index_delivered');
+    Route::get('/index_in_way_orders',[OrderController::class,'index_in_way_orders'])->name('orders.index_in_way');
     Route::put('/update/{order}',[OrderController::class,'update'])->name('orders.update');
     Route::delete('/delete/{order}',[OrderController::class,'destroy'])->name('orders.destroy');
     Route::get('/period_of_editing_has_finished/{order}',[OrderController::class,'period_of_editing_has_finished'])->name('orders.order_confirmation');
     Route::get('/restore/{order}',[OrderController::class,'restore'])->name('orders.restore');
-    
 });
 
 Route::prefix('orders')->middleware('role:admin')->group(function(){
-
+    
+    Route::get('/index_notifications',[OrderController::class,'index_notifications'])->name('noti.index');
     Route::get('/admin_response/{order}',[OrderController::class,'admin_response'])->name('orders.response');
     Route::get('/delivered/{order}',[OrderController::class,'delivered'])->name('orders.delivered');
 
 });
+
+
+// Lang Route
+
+Route::get('/localization/{locale}',LocalizationController::class)->name('locale')->middleware('auth:api');

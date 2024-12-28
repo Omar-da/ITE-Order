@@ -15,7 +15,8 @@ class Order extends Model
         'user_id',
         'cart',
         'location',
-        'status'
+        'status',
+        'is_restored'
     ];
 
     public function user()

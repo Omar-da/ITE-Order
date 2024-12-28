@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('location')->nullable();
             $table->string('role');
+            $table->array('fcm_tokens')->nullable();
+            $table->string('lang');
             $table->rememberToken();
             $table->timestamps();
         });

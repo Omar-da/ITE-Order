@@ -94,6 +94,7 @@ class ProductController extends Controller
                 'error' => 'Product not found',
             ], 404);
             
+        // Add to favorites products
         auth()->user()->favoritesProducts()->attach($product);
 
         return response()->json([
@@ -103,8 +104,28 @@ class ProductController extends Controller
     }
 
 
+
+    public function remove_from_favorites(Product $product)
+    {
+        // Check if product is existed
+        if(!isset($product))
+            return response()->json([
+                'خطأ' => 'المنتج غير موجود',
+                'error' => 'Product not found',
+            ], 404);
+            
+        // Remove from favorites products
+        auth()->user()->favoritesProducts()->detach($product);
+
+        return response()->json([
+            'رسالة' => 'تم إضافة المنتج إلى المفضلة',
+            'message' => 'Product has been added to favorites',
+        ]);
+    }
+
+
    
-    public function index_favorites()
+    public function index_favorites()   // Get all favorites products
     {
         $favorites = auth()->user()->favoritesProducts;
 
@@ -115,7 +136,7 @@ class ProductController extends Controller
 
 
 
-    public function search(Request $request)
+    public function search(Request $request)    // Search about products
     {
         $products = Product::where('name',$request->name)->get();
 

@@ -22,13 +22,22 @@ class AuthController extends Controller
             'name' => 'required | string | min:3 | max:20',
             'phone_number' => 'required | numeric | digits:10 | unique:App\Models\User, phone_number | confirmed',
             'phone_number_confirmation' => 'required',
-            'image' => 'nullable  | image | max:5120',
+            'image' => 'nullable | image | max:5120',
             'location' => 'nullable | string | min:3 | max:100',
         ]);
 
         // Store image in 'Public' folder
         if(isset($data['image']))
             $data['image'] = $this->storeImage($data['image'],'images/profiles');
+
+        // Check of fcm token
+        if(!$request->hasHeader('fcm_token'))
+            return response()->json([
+                'error' => 'fcm token not found'
+            ], 404);
+        // Add the first fcm token
+        else
+            $fcm_token[] = $request->header('fcm_token');
 
         // Create a new user
         $user = User::create([
@@ -37,6 +46,8 @@ class AuthController extends Controller
             'image' => $data['image']?? null,
             'location' => $data['location']?? null,
             'role' => 'user',
+            'fcm_tokens' => $fcm_token,
+            'lang' => 'en'
         ]);
         
         // Set expiration time for tokens
@@ -70,6 +81,22 @@ class AuthController extends Controller
             'error' => 'User not found',
             ],404);
 
+        // Check of fcm token
+        if(!$request->hasHeader('fcm_token'))
+            return response()->json([
+                'error' => 'fcm token not found'
+            ], 404);
+        // Add fcm token to the tokens in db
+        else
+            $new_fcm_token = $request->header('fcm_token');
+
+        $fcm_tokens = $user->fcm_tokens;
+        $fcm_tokens[] = $new_fcm_token;
+        
+        $user->update([
+            'fcm_tokens' => $fcm_tokens
+        ]);
+
         // Set expiration time for tokens
         $expForAccessToken = $this->setExpirationTime('access');
         $expForRefreshToken = $this->setExpirationTime('refresh');
@@ -90,15 +117,16 @@ class AuthController extends Controller
 
     
     
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request)    // Update the profile
     {
+        $user = auth()->user();
+
         $data = $request->validate([
             'name' => 'required | string | min:3 | max:20',
             'image' => 'nullable  | image | max:5120',
             'location' => 'nullable | string | min:3 | max:100',
         ]);
 
-        $user = auth()->user();
         $user->update($data);
 
         return response()->json([
@@ -176,6 +204,7 @@ class AuthController extends Controller
             'error' => 'Owner can not be changed',
             ],403);
 
+        // Prevent changing the role of the admin
         if($user->role == 'admin')
             return response()->json([
             'رسالة' => 'الحساب برتبة مشرف مسبقاً',
@@ -198,11 +227,12 @@ class AuthController extends Controller
     {
         // Prevent changing the role of the owner
         if($user->role == 'owner')
-        return response()->json([
-            'خطأ' => 'لا يمكن تخفيض رتبة مالك التطبيق',
-            'error' => 'Owner can not be changed',
-            ],403);
+            return response()->json([
+                'خطأ' => 'لا يمكن تخفيض رتبة مالك التطبيق',
+                'error' => 'Owner can not be changed',
+                ],403);
 
+        // Prevent changing the role of the user
         if($user->role == 'user')
             return response()->json([
                 'رسالة' => 'الحساب برتبة مستخدم مسبقاً',
