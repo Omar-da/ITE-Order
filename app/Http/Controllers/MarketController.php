@@ -109,7 +109,7 @@ class MarketController extends Controller
 
     public function search(Request $request)    // Search about markets
     {
-        $markets = Market::where('name',$request->name)->get();
+        $markets = Market::where('name','like', "%{$request->name}%")->get();
 
         return response()->json([
             'markets' => $markets
