@@ -46,7 +46,7 @@ class AuthController extends Controller
             'image' => $data['image']?? null,
             'location' => $data['location']?? null,
             'role' => 'user',
-            'fcm_tokens' => $fcm_token,
+            'fcm_tokens' => json_encode($fcm_token),
             'lang' => 'en'
         ]);
         
@@ -90,11 +90,11 @@ class AuthController extends Controller
         else
             $new_fcm_token = $request->header('fcm_token');
 
-        $fcm_tokens = $user->fcm_tokens;
+        $fcm_tokens = json_decode($user->fcm_tokens);
         $fcm_tokens[] = $new_fcm_token;
         
         $user->update([
-            'fcm_tokens' => $fcm_tokens
+            'fcm_tokens' => json_encode($fcm_tokens)
         ]);
 
         // Set expiration time for tokens

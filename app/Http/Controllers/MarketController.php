@@ -55,7 +55,7 @@ class MarketController extends Controller
     
     public function show($market)        // Get market with its image and products
     {
-        $market = Market::with('products')->find($market);
+        $market = Market::find($market);
         
         // Check if market is existed
         if(!isset($market))
@@ -64,9 +64,18 @@ class MarketController extends Controller
                 'error' => 'Market not found',
             ], 404);
 
+        // Combine products with their images
+        $productsWithImages = [];
+        foreach($market->products as $product)
+            $productsWithImages[] = [
+                'product' => $product,
+                'image' => $this->get_image($product),
+            ];
+
         return response()->json([
             'market' => $market ,
-            'image' => $this->get_image($market)
+            'image' => $this->get_image($market),
+            'products' => $productsWithImages
         ]);
     }
 
