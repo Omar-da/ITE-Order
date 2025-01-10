@@ -53,10 +53,8 @@ public function get_image($object)
         $imagePath = public_path("images/$folder/" . $object->image);
 
         // Get data of image
-        if (is_file($imagePath)) {
-            $imageData = base64_encode(file_get_contents($imagePath));
-            return $imageData;
-        }
+        if (is_file($imagePath))
+            return $imagePath;
         else
             return null;
     }
